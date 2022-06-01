@@ -4,23 +4,27 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthDto } from './dto';
 import * as argon from 'argon2';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 @Injectable({})
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwt: JwtService,
+    private config: ConfigService,
+  ) {}
   async login(dto: AuthDto) {
     //find the user by email
-    const user = this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: {
         email: dto.email,
       },
     });
     if (!user) throw new ForbiddenException('User not found');
     //compare the password
-    const isValid = argon.verify((await user).hash, dto.password);
+    const isValid = await argon.verify(user.hash, dto.password);
     if (!isValid) throw new ForbiddenException('Invalid credentials');
-    //return the user;
-    delete (await user).hash;
-    return user;
+    return this.accessToken(user.id, user.email);
   }
   async register(dto: AuthDto) {
     //generate password hash
@@ -33,14 +37,8 @@ export class AuthService {
           email: dto.email,
           hash: passwordHash,
         },
-        select: {
-          id: true,
-          email: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-        //delete user.hash
       });
+      delete user.hash;
       return user;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -52,5 +50,16 @@ export class AuthService {
         throw Error;
       }
     }
+  }
+  async accessToken(userId: number, email: string): Promise<string> {
+    const secret = this.config.get('JWT_SECRET');
+    const accessToken = await this.jwt.signAsync(
+      {
+        userId,
+        email,
+      },
+      { expiresIn: '1hr', secret },
+    );
+    return accessToken;
   }
 }
