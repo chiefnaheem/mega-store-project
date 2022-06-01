@@ -7,11 +7,11 @@ export class AuthController {
   @Post('register')
   register(@Body() dto: AuthDto) {
     console.log({ dto: dto });
-    return this.authService.register();
+    return this.authService.register(dto);
   }
 
   @Post('login')
-  login() {
-    return this.authService.login();
+  login(dto: AuthDto) {
+    return this.authService.login(dto);
   }
 }

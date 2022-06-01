@@ -6,7 +6,7 @@ export class PrismaService extends PrismaClient {
     super({
       datasources: {
         db: {
-          url: 'postgresql://postgres:1234567890@localhost:5434/megastore?schema=public',
+          url: 'postgresql://postgres-naheem:12345678@localhost:5435/megastore-db?schema=public',
         },
       },
     });

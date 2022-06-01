@@ -1,13 +1,13 @@
 version: '3.8'
 services:
-  megastore-db:
+  megastore:
     image: postgres:13.0
     ports:
-      - "5434:5432"
+      - "5435:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234567890
-      POSTGRES_DB: megastore
+      POSTGRES_USER: postgres-naheem
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: megastore-db
     networks:
       - megastore-net
 networks:
