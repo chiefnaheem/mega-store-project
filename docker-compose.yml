@@ -10,5 +10,15 @@ services:
       POSTGRES_DB: megastore-db
     networks:
       - megastore-net
+    megastore-test:
+      image: postgres:13.0
+      ports:
+        - "5436:5432"
+      environment:
+        POSTGRES_USER: postgres-naheem
+        POSTGRES_PASSWORD: 12345678
+        POSTGRES_DB: megastore-test-db
+      networks:
+        - megastore-net
 networks:
   megastore-net:
